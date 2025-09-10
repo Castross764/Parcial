@@ -2,170 +2,150 @@
 
 ## Proyecto Juan Sao Ville
 
-### Alejandro Castro Bueno
+### Introducción
 
-#### Introducción
+Este proyecto corresponde al primer entregable del semestre, cuyo objetivo es construir un API REST funcional que permitan manejar usuarios, autenticación, víctimas, estadísticas y páginas públicas.
 
-Este proyecto forma parte de la materia Ingeniería Web y tiene como objetivo aplicar los conceptos vistos en clase desarrollando un sistema fullstack compuesto por:
+La API está construida con NestJS + Prisma + PostgreSQL, siguiendo principios de seguridad y buenas prácticas (JWT, bcrypt, Guards por roles, validación de DTOs, etc.).
 
-	•	Backend (API REST): expone servicios para autenticación, gestión de usuarios y administración de víctimas.
+#### Propósito principal:
 
-	•	Frontend (Next.js + React + Tailwind): provee una interfaz gráfica moderna, responsiva y amigable.
+	•	Administrar usuarios (roles: ADMIN, SLAVE, DEV).
 
-El propósito del API y su frontend es gestionar diferentes roles de usuario (Admin, Slave, Público), mostrando distintos accesos y funcionalidades según permisos.
+	•	Registrar víctimas asociadas a los esclavos.
 
+	•	Mostrar estadísticas y leaderboard.
 
-#### Tecnologías Utilizadas
+	•	Proveer tips y recibir feedback público.
 
-##### Backend:
+### Stack Tecnológico
 
-	•	Node.js + Express
+	•	Lenguaje: TypeScript
 
-	•	Prisma ORM
+	•	Framework Backend: NestJS
 
-	•	SQLite / PostgreSQL
+	•	ORM: Prisma
 
-	•	JWT + cookies httpOnly para autenticación segura
+	•	Base de datos: PostgreSQL
 
-##### Frontend:
+	•	Autenticación: JWT (cookies httpOnly)
 
-	•	Next.js 15 (App Router)
+	•	Validación: class-validator + DTOs
 
-	•	React 19 (Hooks, Context API)
+	•	Hash de contraseñas: bcrypt
 
-	•	TailwindCSS 4 (estilos modernos minimalistas)
-
-	•	Framer Motion (animaciones)
-
-
-#### Estructura del Proyecto
-
-juan-sao-ville/
-├── backend/        # API REST (Primer entregable)
-├── frontend/       # Interfaz gráfica (Segundo entregable)
-└── README.md       # Documentación principal
-
-Funcionalidades Principales
-
-#### Backend (API)
-	•	Autenticación de usuarios
-
-	•	/auth/login
-
-	•	/auth/me
-
-	•	Gestión de usuarios (ADMIN)
-
-	•	/users
-
-	•	Gestión de víctimas (SLAVE/ADMIN)
-
-	•	/victims
-
-	•	/victims/:id
-
-	•	Leaderboard
-
-	•	/stats/leaderboard
-
-	•	Tips públicos de resistencia
-
-	•	/public/tips
-
-	•	/public/feedback
-
-#### Frontend
-
-	•	Página de Login → acceso según rol.
-
-	•	Dashboard Admin → gestión de usuarios y leaderboard.
-
-	•	Dashboard Slave → formulario para capturar víctimas + tabla de seguimiento.
-
-	•	Página de Resistencia → tips y feedback público.
-
-	•	Detalle de Víctimas → ver y actualizar estado de transformación.
-
-⸻
-
-#### Instrucciones de Instalación
+### Setup e Instalación
 
 1. Clonar el repositorio
 
-git clone https://github.com/Castross764/Parcial.git
-
-cd juan-sao-ville
-
-2. Configurar el Backend
-
+git clone <repo-url>
 cd backend
 
-npm install
+2. Instalar dependencias
 
-npm run dev
+pnpm install
 
-El backend corre en:
-👉 http://localhost:3000/api
+3. Variables de entorno
 
-3. Configurar el Frontend
-cd frontend
+Crear archivo .env en la carpeta backend con:
 
-npm install
+DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/juan-saoville"
+JWT_SECRET="supersecretkey"
+NODE_ENV=development
 
-npm run dev
+4. Migrar base de datos
 
-Uso del API – Ejemplos
+npx prisma migrate dev --name init
 
-Login
+5. Ejecutar en modo desarrollo
 
-Request
+pnpm start:dev
 
-POST /auth/login
+### Estructura de carpetas
 
-Content-Type: application/json
+backend/
+│── src/
+│   ├── auth/        # Registro, login, JWT
+│   ├── users/       # CRUD de usuarios
+│   ├── victims/     # CRUD de víctimas
+│   ├── stats/       # Leaderboard y estadísticas
+│   ├── public/      # Tips y feedback
+│   ├── prisma/      # Configuración de Prisma
+│   └── main.ts      # Configuración principal
 
-{
-  "email": "admin@test.com",
-  "password": "123456"
-}
+### Endpoints Principales
 
-Response
-{
-  "id": 1,
-  "email": "admin@test.com",
-  "role": "ADMIN"
-}
+#### Auth
 
-Crear Víctima
+**Método**       |           **Endpoint**          |           **Descripción**
+POST         |      /api/auth/register     |           Registrar un nuevo usuario
+POST         |       /api/auth/login       |           Login, devuelve cookie con JWT
+GET          |         /api/auth/me        |           Info del usuario autenticado
 
-Request
+#### Ejemplo:
 
-POST /victims
-Content-Type: application/json
-
-{
-  "name": "Víctima 1",
-  "skills": "Programación",
-  "lastSeen": "2025-09-01",
-  "transformationStatus": "CAPTURED"
-}
-
-Response
-{
-  "id": 1,
-  "name": "Víctima 1",
-  "skills": "Programación",
-  "lastSeen": "2025-09-01",
-  "transformationStatus": "CAPTURED"
-}
-
-#### Troubleshooting
-
-	•	Error de conexión frontend-backend
-        Verificar que el baseURL en frontend/lib/api.ts apunte correctamente al backend.
-	•	Problemas con Tailwind
-        Asegurarse de tener @import "tailwindcss"; en globals.css y no duplicar configuraciones en postcss.config.js.
-	•	Base de datos no responde
-        Revisar migraciones de Prisma (npx prisma migrate dev).
+curl -X POST http://localhost:3000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Alice","email":"alice@example.com","password":"123456","role":"SLAVE"}'
 
 
+### Users
+
+**Método**       |           **Endpoint**             |           **Descripción**
+GET          |           /api/users           |           Listar usuarios (solo ADMIN)
+GET          |           /api/users/:id       |           Ver un usuario
+PUT          |           /api/users/:id       |           Editar perfil (propio o ADMIN)
+DELETE       |           /api/users/:id       |           Eliminar usuario (solo ADMIN)
+
+### Victims
+
+**Método**      |           **Endpoint**               |           **Descripción**
+POST         |           /api/victims           |           Crear víctima (SLAVE)
+GET          |           /api/victims           |           Listar víctimas (depende del rol)
+GET          |           /api/victims/:id       |           Ver víctima
+PUT          |           /api/victims/:id       |           Actualizar estado
+DELETE       |           /api/victims/:id       |           Eliminar (solo ADMIN)
+
+#### Roles:
+	- SLAVE → solo sus víctimas
+
+	- ADMIN → todas
+
+	- DEV → solo públicas
+
+### Stats
+
+**Método**       |           **Endpoint**                     |           **Descripción**
+GET          |           /api/stats/leaderboard       |           Ranking de esclavos por número de víctimas
+GET          |           /api/stats/slaves/:id        |           Estadísticas individuales de un esclavo
+
+
+### Public
+
+**Método**       |           **Endpoint**                   |           **Descripción**
+GET          |           /api/public/tips           |           Listado de tips
+POST         |           /api/public/feedback       |           Enviar feedback público
+
+### Seguridad
+
+	•	JWT con cookies httpOnly → evita XSS.
+
+	•	bcrypt con salt rounds = 12 → protege contraseñas.
+
+	•	RoleGuard → protege rutas según rol.
+
+	•	Rate limiting (@nestjs/throttler) → limita spam.
+
+	•	CORS configurado → solo acepta frontend permitido.
+
+### Ejemplo de flujo
+
+	1.	Registrar usuario: POST /api/auth/register
+
+	2.	Iniciar sesión: POST /api/auth/login (guarda cookie access_token)
+
+	3.	Consultar info: GET /api/auth/me
+
+	4.	Crear víctima: POST /api/victims
+	
+	5.	Ver leaderboard: GET /api/stats/leaderboard
