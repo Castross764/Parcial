@@ -1,0 +1,61 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  ADMIN
+  SLAVE
+  DEVELOPER
+}
+
+enum TransformationStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(DEVELOPER)
+  createdAt DateTime @default(now())
+
+  // Relación con Victim
+  victims Victim[] @relation("SlaveVictims")
+
+  // Relación con Reward
+  rewardsReceived Reward[] @relation("UserRewards") // cuando el user es SLAVE
+  rewardsAssigned Reward[] @relation("AssignedRewards") // cuando el user es ADMIN
+}
+
+model Victim {
+  id                   Int                  @id @default(autoincrement())
+  name                 String
+  skills               String?
+  lastSeen             DateTime?
+  transformationStatus TransformationStatus @default(PENDING)
+
+  capturedById Int?
+  capturedBy   User? @relation("SlaveVictims", fields: [capturedById], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model Reward {
+  id          Int      @id @default(autoincrement())
+  slaveId     Int
+  description String
+  assignedBy  Int?
+  createdAt   DateTime @default(now())
+
+  // Relaciones
+  slave User  @relation("UserRewards", fields: [slaveId], references: [id])
+  admin User? @relation("AssignedRewards", fields: [assignedBy], references: [id])
+}
