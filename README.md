@@ -64,13 +64,21 @@ pnpm start:dev
 ### Estructura de carpetas
 
 backend/
+
 │── src/
+
 │   ├── auth/        # Registro, login, JWT
+
 │   ├── users/       # CRUD de usuarios
+
 │   ├── victims/     # CRUD de víctimas
+
 │   ├── stats/       # Leaderboard y estadísticas
+
 │   ├── public/      # Tips y feedback
+
 │   ├── prisma/      # Configuración de Prisma
+
 │   └── main.ts      # Configuración principal
 
 ### Endpoints Principales
@@ -78,8 +86,11 @@ backend/
 #### Auth
 
 **Método**       |           **Endpoint**          |           **Descripción**
+
 POST         |      /api/auth/register     |           Registrar un nuevo usuario
+
 POST         |       /api/auth/login       |           Login, devuelve cookie con JWT
+
 GET          |         /api/auth/me        |           Info del usuario autenticado
 
 #### Ejemplo:
@@ -92,18 +103,27 @@ curl -X POST http://localhost:3000/api/auth/register \
 ### Users
 
 **Método**       |           **Endpoint**             |           **Descripción**
+
 GET          |           /api/users           |           Listar usuarios (solo ADMIN)
+
 GET          |           /api/users/:id       |           Ver un usuario
+
 PUT          |           /api/users/:id       |           Editar perfil (propio o ADMIN)
+
 DELETE       |           /api/users/:id       |           Eliminar usuario (solo ADMIN)
 
 ### Victims
 
 **Método**      |           **Endpoint**               |           **Descripción**
+
 POST         |           /api/victims           |           Crear víctima (SLAVE)
+
 GET          |           /api/victims           |           Listar víctimas (depende del rol)
+
 GET          |           /api/victims/:id       |           Ver víctima
+
 PUT          |           /api/victims/:id       |           Actualizar estado
+
 DELETE       |           /api/victims/:id       |           Eliminar (solo ADMIN)
 
 #### Roles:
@@ -116,14 +136,18 @@ DELETE       |           /api/victims/:id       |           Eliminar (solo ADMIN
 ### Stats
 
 **Método**       |           **Endpoint**                     |           **Descripción**
+
 GET          |           /api/stats/leaderboard       |           Ranking de esclavos por número de víctimas
+
 GET          |           /api/stats/slaves/:id        |           Estadísticas individuales de un esclavo
 
 
 ### Public
 
 **Método**       |           **Endpoint**                   |           **Descripción**
+
 GET          |           /api/public/tips           |           Listado de tips
+
 POST         |           /api/public/feedback       |           Enviar feedback público
 
 ### Seguridad
@@ -147,5 +171,5 @@ POST         |           /api/public/feedback       |           Enviar feedback 
 	3.	Consultar info: GET /api/auth/me
 
 	4.	Crear víctima: POST /api/victims
-	
+
 	5.	Ver leaderboard: GET /api/stats/leaderboard
